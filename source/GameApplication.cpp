@@ -253,7 +253,7 @@ void GameApplication::Loop() {
             nlohmann::json defs_tilesets = defs["tilesets"];
 
             tilesets.push_back(Tileset(defs_tilesets.at(0)["identifier"], defs_tilesets.at(0)["relPath"], defs_tilesets.at(0)["pxWid"], defs_tilesets.at(0)["pxHei"]));
-
+            tilesets.front().GetWidthPixels();
         }
 
         if(input_json.contains("levels")) {
@@ -274,6 +274,7 @@ void GameApplication::Loop() {
     while(is_running) {
 
         frame_start = SDL_GetPerformanceCounter();
+        ticks_start = SDL_GetTicks();
 
         while(SDL_PollEvent(&sdl_event)) {
         
@@ -338,7 +339,7 @@ void GameApplication::Loop() {
         ResourceLoader::GetShader("sprite").Use();
 
         game_map.Draw(sprite_renderer);
-        
+
         sprite_renderer->DrawSprite(ResourceLoader::GetTexture(player_idles[idle_loop]), glm::vec2((window_width / 2), (window_height / 2)), glm::vec2(32, 32));
 
         ResourceLoader::GetFont("alagard").Draw(sprite_renderer, std::to_string(frame_rate).c_str(), 32, 32);
@@ -355,10 +356,18 @@ void GameApplication::Loop() {
         SDL_GL_SwapWindow(sdl_window);
     
         frame_end = SDL_GetPerformanceCounter();
+        ticks_end = SDL_GetTicks();
 
+        // FPS Calculation using SDL timer.
+        frame_time = (ticks_end - ticks_start);
+        frame_rate = 1000.0f / frame_time;
+
+        // FPS Calculation using high precision timer (doesn't work haha).
         perf_freq = SDL_GetPerformanceFrequency();
-        frame_time = (frame_end - frame_start) / static_cast<double>(perf_freq);
-        frame_rate = 1 / (frame_time * 1000.0);
+        //frame_time = (frame_end - frame_start) / static_cast<double>(perf_freq);
+        //frame_rate = 1 / (frame_time * 1000.0);
+
+        frame_count++;
 
         SDL_Delay(1);
     }

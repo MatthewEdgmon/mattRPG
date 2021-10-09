@@ -48,11 +48,14 @@ class GameApplication {
 		int window_width = 640;
 		int window_height = 480;
 
-		std::uint64_t frame_start;
-		std::uint64_t frame_end;
-		std::uint64_t perf_freq;
-		double frame_time;
-		double frame_rate;
+		std::uint64_t frame_count = 0;
+		std::uint64_t frame_start = 0;
+		std::uint64_t frame_end = 0;
+		std::uint64_t perf_freq = 0;
+		std::uint32_t ticks_start = 0;
+		std::uint32_t ticks_end = 0;
+		double frame_time = 0.0f;
+		double frame_rate = 0.0f;
 
 		int stored_argc;
 		char** stored_argv;
