@@ -1,0 +1,6 @@
+[submodule "external/glm"]
+	path = external/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "CMakeModules/sdl2-cmake-modules"]
+	path = CMakeModules/sdl2-cmake-modules
+	url = https://gitlab.com/aminosbh/sdl2-cmake-modules.git
