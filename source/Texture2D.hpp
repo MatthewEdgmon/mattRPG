@@ -32,19 +32,22 @@ class Texture2D {
 	public:
 		Texture2D();
 
-		// Generate from raw pixel data.
 		void Generate(std::uint32_t width, std::uint32_t height, std::uint8_t* data);
+		void GenerateArray(std::uint32_t width, std::uint32_t height, std::uint32_t subimage_size_x, std::uint32_t subimage_size_y, std::uint8_t* data);
+
 		void Delete();
 
-		void Bind();
+		void Bind(std::uint32_t texture_unit = 0);
 
 		void SetFilterMinMax(uint32_t min, uint32_t max) { filter_min = min; filter_max = max; }
 		void SetInternalFormat(std::uint32_t format) { format_internal = format; }
 		void SetImageFormat(std::uint32_t format) { format_image = format; }
 
-		std::uint32_t GetID()     { return texture_id; }
-		std::uint32_t GetWidth()  { return width; }
-		std::uint32_t GetHeight() { return height; }
+		std::uint32_t GetID()          { return texture_id; }
+		std::uint32_t GetWidth()       { return width; }
+		std::uint32_t GetHeight()      { return height; }
+		bool          IsLoaded()       { return is_loaded; }
+		bool          IsArrayTexture() { return is_array_texture; }
 
 	private:
 		// Actual reference to texture.
@@ -61,8 +64,11 @@ class Texture2D {
 		// Wrapping mode on S and T axes.
 		std::uint32_t wrap_s, wrap_t;
 
+		// True if 2D texture array.
+		bool is_array_texture;
+
 		// Texture is loaded.
-		bool texture_loaded;
+		bool is_loaded;
 };
 
 #endif /* __TEXTURE_2D_HPP__ */

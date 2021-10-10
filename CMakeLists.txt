@@ -75,7 +75,9 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
 
-set(SOURCE_FILES source/Font.cpp
+set(SOURCE_FILES source/ArrayRenderer.cpp
+                 source/ArrayRenderer.hpp
+                 source/Font.cpp
                  source/Font.hpp
                  source/GameApplication.cpp
                  source/GameApplication.hpp
@@ -93,8 +95,6 @@ set(SOURCE_FILES source/Font.cpp
                  source/MusicTrack.hpp
                  source/OverworldPlayer.cpp
                  source/OverworldPlayer.cpp
-                 source/RenderDebug.cpp
-                 source/RenderDebug.hpp
                  source/ResourceLoader.cpp
                  source/ResourceLoader.hpp
                  source/Shader.cpp
@@ -103,8 +103,6 @@ set(SOURCE_FILES source/Font.cpp
                  source/SpriteRenderer.hpp
                  source/SoundEffect.cpp
                  source/SoundEffect.hpp
-                 source/TextureArray2D.cpp
-                 source/TextureArray2D.hpp
                  source/Texture2D.cpp
                  source/Texture2D.hpp
                  # GLAD2

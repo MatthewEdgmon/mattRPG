@@ -37,16 +37,57 @@
 // json
 #include <nlohmann/json.hpp>
 
+#include "ArrayRenderer.hpp"
+#include "Font.hpp"
 #include "GameApplication.hpp"
 #include "GameMap.hpp"
 #include "GameMapTile.hpp"
 #include "InputManager.hpp"
 #include "OverworldPlayer.hpp"
-#include "RenderDebug.hpp"
 #include "ResourceLoader.hpp"
 #include "Shader.hpp"
 #include "SpriteRenderer.hpp"
 #include "Texture2D.hpp"
+
+void gl_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const* message, void const* user_param) {
+
+    auto const src_str = [source]() {
+		switch(source) {
+		    case GL_DEBUG_SOURCE_API: return "API";
+		    case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "WINDOW SYSTEM";
+		    case GL_DEBUG_SOURCE_SHADER_COMPILER: return "SHADER COMPILER";
+		    case GL_DEBUG_SOURCE_THIRD_PARTY: return "THIRD PARTY";
+		    case GL_DEBUG_SOURCE_APPLICATION: return "APPLICATION";
+		    case GL_DEBUG_SOURCE_OTHER: return "OTHER";
+            default: return "???";
+        }
+	}();
+
+	auto const type_str = [type]() {
+		switch(type) {
+		    case GL_DEBUG_TYPE_ERROR: return "ERROR";
+		    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED_BEHAVIOR";
+		    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "UNDEFINED_BEHAVIOR";
+		    case GL_DEBUG_TYPE_PORTABILITY: return "PORTABILITY";
+		    case GL_DEBUG_TYPE_PERFORMANCE: return "PERFORMANCE";
+		    case GL_DEBUG_TYPE_MARKER: return "MARKER";
+		    case GL_DEBUG_TYPE_OTHER: return "OTHER";
+            default: return "???";
+		}
+	}();
+
+	auto const severity_str = [severity]() {
+		switch(severity) {
+		    case GL_DEBUG_SEVERITY_NOTIFICATION: return "NOTIFICATION";
+		    case GL_DEBUG_SEVERITY_LOW: return "LOW";
+		    case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
+		    case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
+            default: return "???";
+		}
+	}();
+
+	std::cout << src_str << ", " << type_str << ", " << severity_str << ", " << id << ": " << message << '\n';
+}
 
 int GameApplication::Main(int argc, char** argv) {
     stored_argc = argc;
@@ -148,6 +189,16 @@ void GameApplication::Initialize() {
 
     std::cout << "Loaded OpenGL " << GLAD_VERSION_MAJOR(glad_version) << "." << GLAD_VERSION_MINOR(glad_version) << " using GLAD2.\n";
 
+    // Enable KHR_debug
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(gl_message_callback, nullptr); // gl_message_callback defined above
+    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE); // Disable NOTIFICATION level debug messages.
+
+    // Enable alpha blending.
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     SDL_AudioSpec want, have;
 
     SDL_zero(want);
@@ -198,13 +249,11 @@ void GameApplication::Loop() {
     ResourceLoader::LoadShader("./resource/Shaders/sprite.vert.glsl", "./resource/Shaders/sprite.frag.glsl", nullptr, "sprite");
     ResourceLoader::GetShader("sprite").SetInteger("image", 0, true);
     ResourceLoader::GetShader("sprite").SetMatrix4f("projection", projection_matrix);
-    ResourceLoader::GetShader("sprite").Use();
 
-    ResourceLoader::LoadShader("./resource/Shaders/TextureArray2D.vert.glsl", "./resource/Shaders/TextureArray2D.frag.glsl", nullptr, "TextureArray2D");
-    ResourceLoader::GetShader("TextureArray2D").SetInteger("image", 0, true);
-    ResourceLoader::GetShader("TextureArray2D").SetMatrix4f("projection", projection_matrix);
-
-    ResourceLoader::LoadShader("./resource/Shaders/debug.vert.glsl", "./resource/Shaders/debug.frag.glsl", nullptr, "debug");
+    ResourceLoader::LoadShader("./resource/Shaders/array.vert.glsl", "./resource/Shaders/array.frag.glsl", nullptr, "TextureArray2D");
+    ResourceLoader::GetShader("array").SetInteger("image", 0);
+    ResourceLoader::GetShader("array").SetInteger("texture_array", 0);
+    ResourceLoader::GetShader("array").SetMatrix4f("projection", projection_matrix);
 
     // UI Elements
     //ResourceLoader::LoadTexture("./resource/external/moderna-graphical-interface/toolbar.png", true, "ui_toolbar");
@@ -235,8 +284,10 @@ void GameApplication::Loop() {
     //}
 
     // Tiles
-    ResourceLoader::LoadTextureAtlas("./resource/OverworldPack/GrassBiome/GB-LandTileset.png", true, true, "grass", glm::vec2(16, 16), glm::vec2(31, 31));
+    ResourceLoader::LoadTextureArray("./resource/OverworldPack/GrassBiome/GB-LandTileset.png", true, true, "grass", 16, 16);
 
+    // Renderers
+    ArrayRenderer* array_renderer = new ArrayRenderer(ResourceLoader::GetShader("array"));
     SpriteRenderer* sprite_renderer = new SpriteRenderer(ResourceLoader::GetShader("sprite"));
 
     std::ifstream input("./resource/test.ldtk");
@@ -271,9 +322,6 @@ void GameApplication::Loop() {
         }
 
     }
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     while(is_running) {
 
@@ -336,28 +384,20 @@ void GameApplication::Loop() {
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        ResourceLoader::GetShader("debug").Use();
+        //array_renderer->DrawArray(ResourceLoader::GetTexture("grass"), 18, glm::vec2(32, 32));
 
-        RenderDebug::RenderDebugLine(glm::vec2(1.0f, 1.0f), glm::vec2(64.0f, 64.0f), glm::vec3(1.0f));
-
-        ResourceLoader::GetShader("sprite").Use();
-
-        game_map.Draw(sprite_renderer);
-
-        sprite_renderer->DrawSprite(ResourceLoader::GetTexture(player_idles[idle_loop]), glm::vec2((window_width / 2), (window_height / 2)), glm::vec2(32, 32));
-
-        ResourceLoader::GetFont("alagard").Draw(sprite_renderer, std::to_string(frame_rate).c_str(), 32, 32);
-        
-        ResourceLoader::GetFont("kenney_future_square").Draw(sprite_renderer, "TTF Font Test", 32, 256);
-        ResourceLoader::GetFont("romulus").Draw(sprite_renderer, "TTF Font Test", 32, 64, 0xFF, 0x00, 0x00);
-        ResourceLoader::GetFont("romulus").Draw(sprite_renderer, "TTF Font Test", 32, 96, 0x00, 0xFF, 0x00);
-        ResourceLoader::GetFont("romulus").Draw(sprite_renderer, "TTF Font Test", 32, 128, 0x00, 0x00, 0xFF);
+        sprite_renderer->DrawSprite(ResourceLoader::GetTexture(player_idles[idle_loop]), glm::vec2((window_width / 2), (window_height / 2)), glm::vec2(64, 64));
 
         idle_loop++;
 
-        if(idle_loop == 4) {
+        if (idle_loop == 4) {
             idle_loop = 0;
         }
+
+        ResourceLoader::GetFont("alagard").Draw(sprite_renderer, std::to_string(frame_rate).c_str(), 32, 32);
+        ResourceLoader::GetFont("alagard").Draw(sprite_renderer, "The quick brown fox jumps over the lazy dog.", 32, 128);
+        ResourceLoader::GetFont("kenney_future_square").Draw(sprite_renderer, "The quick brown fox jumps over the lazy dog.", 32, 160);
+        ResourceLoader::GetFont("romulus").Draw(sprite_renderer, "The quick brown fox jumps over the lazy dog.", 32, 192);
 
         SDL_GL_SwapWindow(sdl_window);
     

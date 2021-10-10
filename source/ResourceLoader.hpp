@@ -18,6 +18,8 @@
 #ifndef __RESOURCE_LOADER_HPP__
 #define __RESOURCE_LOADER_HPP__
 
+// STL
+#include <cstdint>
 #include <map>
 #include <string>
 
@@ -46,7 +48,8 @@ class ResourceLoader {
 		static SoundEffect LoadSoundEffect(const char* filename, std::string sound_effect_name);
 		static SoundEffect GetSoundEffect(std::string name);
 
-		static Texture2D LoadTextureAtlas(const char* filename, bool alpha, bool bilinear, std::string texture_name, glm::vec2 top_left, glm::vec2 bottom_right);
+		static Texture2D LoadSubTexture(const char* filename, bool alpha, bool bilinear, std::string texture_name, glm::vec2 top_left, glm::vec2 bottom_right);
+		static Texture2D LoadTextureArray(const char* filename, bool alpha, bool bilinear, std::string texture_name, std::uint32_t subimage_size_x, std::uint32_t subimage_size_y);
 		static Texture2D LoadTexture(const char* filename, bool alpha, bool bilinear, std::string texture_name);
 		static Texture2D GetTexture(std::string name);
 
@@ -59,7 +62,8 @@ class ResourceLoader {
 		static MusicTrack LoadMusicTrackFromFile(const char* filename);
 		static Shader LoadShaderFromFile(const char* vertex_shader_filename, const char* fragment_shader_filename, const char* geometry_shader_filename);
 		static SoundEffect LoadSoundEffectFromFile(const char* filename);
-		static Texture2D LoadTextureAtlasFromFile(const char* filename, bool alpha, bool bilinear, glm::vec2 top_left, glm::vec2 bottom_right);
+		static Texture2D LoadSubTextureFromFile(const char* filename, bool alpha, bool bilinear, glm::vec2 top_left, glm::vec2 bottom_right);
+		static Texture2D LoadTextureArrayFromFile(const char* filename, bool alpha, bool bilinear, std::uint32_t subimage_size_x, std::uint32_t subimage_size_y);
 		static Texture2D LoadTextureFromFile(const char* filename, bool alpha, bool bilinear);
 
 		static std::map<std::string, Font>        fonts;

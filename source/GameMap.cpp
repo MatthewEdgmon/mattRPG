@@ -39,6 +39,7 @@ void GameMap::Resize(int max_x, int max_y) {
 	}
 }
 
+// TODO: Super inefficent
 void GameMap::Draw(SpriteRenderer* renderer) {
 	for(size_t x = 0; x < max_x; x++) {
 		for(size_t y = 0; y < max_y; y++) {

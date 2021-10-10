@@ -15,26 +15,33 @@
  * along with mattRPG.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __RENDER_DEBUG_HPP__
-#define __RENDER_DEBUG_HPP__
+#ifndef __ARRAY_RENDERER_HPP__
+#define __ARRAY_RENDERER_HPP__
 
+// STL
 #include <cstdint>
-
- // GLAD2
-#include <glad/gl.h>
 
 // GLM
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
-class RenderDebug {
+#include "Shader.hpp"
+#include "Texture2D.hpp"
+
+class ArrayRenderer {
 
 	public:
-		static void RenderDebugBox(glm::vec2 top_left, glm::vec2 bottom_right, glm::vec3 color);
-		static void RenderDebugLine(glm::vec2 start, glm::vec2 end, glm::vec3 color);
+		ArrayRenderer(Shader& shader);
+		~ArrayRenderer();
+
+		void DrawArray(Texture2D& texture, std::uint32_t layer, glm::vec2 position, glm::vec2 size = glm::vec2(10.0f), float rotation = 0.0f, glm::vec3 color = glm::vec3(1.0f));
 
 	private:
-		RenderDebug() { }
+		Shader shader;
+		unsigned int QuadVAO;
+		unsigned int QuadVBO;
+
+		void InitRenderData();
 };
 
-#endif /* __RENDER_DEBUG_HPP__ */
+#endif /* __ARRAY_RENDERER_HPP__ */

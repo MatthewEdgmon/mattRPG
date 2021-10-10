@@ -83,8 +83,13 @@ SoundEffect ResourceLoader::GetSoundEffect(std::string name) {
 	return sound_effects[name];
 }
 
-Texture2D ResourceLoader::LoadTextureAtlas(const char* filename, bool alpha, bool bilinear, std::string texture_name, glm::vec2 top_left, glm::vec2 bottom_right) {
-	textures[texture_name] = LoadTextureAtlasFromFile(filename, alpha, bilinear, top_left, bottom_right);
+Texture2D ResourceLoader::LoadSubTexture(const char* filename, bool alpha, bool bilinear, std::string texture_name, glm::vec2 top_left, glm::vec2 bottom_right) {
+	textures[texture_name] = LoadSubTextureFromFile(filename, alpha, bilinear, top_left, bottom_right);
+	return textures[texture_name];
+}
+
+Texture2D ResourceLoader::LoadTextureArray(const char* filename, bool alpha, bool bilinear, std::string texture_name, std::uint32_t subimage_size_x, std::uint32_t subimage_size_y) {
+	textures[texture_name] = LoadTextureArrayFromFile(filename, alpha, bilinear, subimage_size_x, subimage_size_y);
 	return textures[texture_name];
 }
 
@@ -187,7 +192,7 @@ SoundEffect ResourceLoader::LoadSoundEffectFromFile(const char* filename) {
 	return sound_effect;
 }
 
-Texture2D ResourceLoader::LoadTextureAtlasFromFile(const char* filename, bool alpha, bool bilinear, glm::vec2 top_left, glm::vec2 bottom_right) {
+Texture2D ResourceLoader::LoadSubTextureFromFile(const char* filename, bool alpha, bool bilinear, glm::vec2 top_left, glm::vec2 bottom_right) {
 	
 	SDL_Rect atlas_rect;
 	Texture2D result_texture;
@@ -243,6 +248,35 @@ Texture2D ResourceLoader::LoadTextureAtlasFromFile(const char* filename, bool al
 	result_texture.Generate(result_surface->w, result_surface->h, static_cast<std::uint8_t*>(result_surface->pixels));
 
 	return result_texture;
+}
+
+Texture2D ResourceLoader::LoadTextureArrayFromFile(const char* filename, bool alpha, bool bilinear, std::uint32_t subimage_size_x, std::uint32_t subimage_size_y) {
+
+	Texture2D texture;
+
+	if(filename == nullptr) {
+		return texture;
+	}
+
+	if(alpha) {
+		texture.SetInternalFormat(GL_RGBA8);
+		texture.SetImageFormat(GL_RGBA);
+	}
+
+	if(bilinear) {
+		texture.SetFilterMinMax(GL_LINEAR, GL_LINEAR);
+	}
+
+	SDL_Surface* image_surface = IMG_Load(filename);
+
+	if(image_surface == NULL) {
+		std::cout << "ResourceLoader: Failed to load texture from file \"" << filename << "\". IMG_GetError(): " << IMG_GetError() << "\n";
+		return texture;
+	}
+
+	texture.GenerateArray(image_surface->w, image_surface->h, subimage_size_x, subimage_size_y, static_cast<std::uint8_t*>(image_surface->pixels));
+
+	return texture;
 }
 
 Texture2D ResourceLoader::LoadTextureFromFile(const char* filename, bool alpha, bool bilinear) {

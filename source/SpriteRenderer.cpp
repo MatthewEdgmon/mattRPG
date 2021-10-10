@@ -51,6 +51,14 @@ void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec2 position, glm::vec
 		size.y = texture.GetHeight();
 	}
 
+	if(texture.IsLoaded() == false) {
+		return;
+	}
+
+	if(texture.IsArrayTexture()) {
+		return;
+	}
+
 	// Prepare transformations.
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(position, 0.0f));
@@ -86,13 +94,24 @@ void SpriteRenderer::InitRenderData() {
 		1.0f, 0.0f, 1.0f, 0.0f
 	};
 
-	glGenVertexArrays(1, &QuadVAO);
-	glGenBuffers(1, &QuadVBO);
-
+	/*
+	glCreateBuffers(1, &QuadVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, QuadVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	glCreateVertexArrays(1, &QuadVAO);
+	glEnableVertexArrayAttrib(QuadVAO, 0);
+	glVertexArrayAttribFormat(QuadVAO, 0, 4, GL_FLOAT, GL_FALSE, 0);
+	glVertexArrayAttribBinding(QuadVAO, 0, 0);
+	*/
+
+	glCreateBuffers(1, &QuadVBO);
+	glNamedBufferData(QuadVBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glCreateVertexArrays(1, &QuadVAO);
 	glBindVertexArray(QuadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, QuadVBO);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
