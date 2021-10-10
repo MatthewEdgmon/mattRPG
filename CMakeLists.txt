@@ -103,8 +103,8 @@ set(SOURCE_FILES source/Font.cpp
                  source/SpriteRenderer.hpp
                  source/SoundEffect.cpp
                  source/SoundEffect.hpp
-                 source/Tileset.cpp
-                 source/Tileset.hpp
+                 source/TextureArray2D.cpp
+                 source/TextureArray2D.hpp
                  source/Texture2D.cpp
                  source/Texture2D.hpp
                  # GLAD2

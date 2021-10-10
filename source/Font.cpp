@@ -37,7 +37,7 @@ void Font::Draw(SpriteRenderer* renderer, const char* text, int position_x, int 
 
 	Texture2D texture;
 
-	SDL_Color font_color = { color_r, color_g, color_b };
+	SDL_Color font_color = { color_b, color_g, color_r };
 
 	SDL_Surface* font_surface = TTF_RenderUTF8_Blended(font, text, font_color);
 
@@ -48,27 +48,33 @@ void Font::Draw(SpriteRenderer* renderer, const char* text, int position_x, int 
 
 	uint8_t font_bbp = font_surface->format->BytesPerPixel;
 
+	// TODO: Investigate whether anything other than GL_RGBA/GL_RGBA8 is possible.
+	// Colors swapped above in font_color to accomadate for now.
 	if(font_bbp == 4) {
-		if(font_surface->format->Rmask == 0x000000FF) {
+		if(font_surface->format->Rmask == 0x000000FF || font_surface->format->Rmask == 0x00FF0000) {
 			texture.SetImageFormat(GL_RGBA);
+			texture.SetInternalFormat(GL_RGBA8);
 		} else {
 			texture.SetImageFormat(GL_BGRA);
+			texture.SetInternalFormat(GL_BGRA8_EXT);
 		}
 	} else {
 		if(font_surface->format->Rmask == 0x000000FF) {
 			texture.SetImageFormat(GL_RGB);
+			texture.SetInternalFormat(GL_RGB8);
 		} else {
 			texture.SetImageFormat(GL_BGR);
+			texture.SetInternalFormat(GL_BGRA8_EXT);
 		}
 	}
-
-	texture.SetInternalFormat(font_bbp);
 
 	texture.Generate(font_surface->w, font_surface->h, static_cast<std::uint8_t*>(font_surface->pixels));
 
 	SDL_FreeSurface(font_surface);
 
 	renderer->DrawSprite(texture, glm::vec2(position_x, position_y), glm::vec2(texture.GetWidth(), texture.GetHeight()));
+
+	texture.Delete();
 }
 
 void Font::Delete() {

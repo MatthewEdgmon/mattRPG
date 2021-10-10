@@ -15,7 +15,10 @@
  * along with mattRPG.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- // GLAD2
+// STL
+#include <iostream>
+
+// GLAD2
 #include <glad/gl.h>
 
 // GLM

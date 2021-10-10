@@ -197,7 +197,7 @@ Texture2D ResourceLoader::LoadTextureAtlasFromFile(const char* filename, bool al
 	}
 
 	if(alpha) {
-		result_texture.SetInternalFormat(GL_RGBA);
+		result_texture.SetInternalFormat(GL_RGBA8);
 		result_texture.SetImageFormat(GL_RGBA);
 	}
 
@@ -254,7 +254,7 @@ Texture2D ResourceLoader::LoadTextureFromFile(const char* filename, bool alpha, 
 	}
 
 	if(alpha) {
-		texture.SetInternalFormat(GL_RGBA);
+		texture.SetInternalFormat(GL_RGBA8);
 		texture.SetImageFormat(GL_RGBA);
 	}
 

@@ -47,7 +47,6 @@
 #include "Shader.hpp"
 #include "SpriteRenderer.hpp"
 #include "Texture2D.hpp"
-#include "Tileset.hpp"
 
 int GameApplication::Main(int argc, char** argv) {
     stored_argc = argc;
@@ -129,8 +128,8 @@ void GameApplication::Initialize() {
         exit(-1);
     }
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     sdl_gl_context = SDL_GL_CreateContext(sdl_window);
@@ -201,6 +200,10 @@ void GameApplication::Loop() {
     ResourceLoader::GetShader("sprite").SetMatrix4f("projection", projection_matrix);
     ResourceLoader::GetShader("sprite").Use();
 
+    ResourceLoader::LoadShader("./resource/Shaders/TextureArray2D.vert.glsl", "./resource/Shaders/TextureArray2D.frag.glsl", nullptr, "TextureArray2D");
+    ResourceLoader::GetShader("TextureArray2D").SetInteger("image", 0, true);
+    ResourceLoader::GetShader("TextureArray2D").SetMatrix4f("projection", projection_matrix);
+
     ResourceLoader::LoadShader("./resource/Shaders/debug.vert.glsl", "./resource/Shaders/debug.frag.glsl", nullptr, "debug");
 
     // UI Elements
@@ -234,8 +237,6 @@ void GameApplication::Loop() {
     // Tiles
     ResourceLoader::LoadTextureAtlas("./resource/OverworldPack/GrassBiome/GB-LandTileset.png", true, true, "grass", glm::vec2(16, 16), glm::vec2(31, 31));
 
-    std::vector<Tileset> tilesets;
-
     SpriteRenderer* sprite_renderer = new SpriteRenderer(ResourceLoader::GetShader("sprite"));
 
     std::ifstream input("./resource/test.ldtk");
@@ -252,8 +253,11 @@ void GameApplication::Loop() {
             nlohmann::json defs = input_json.find<std::string>("defs").value();
             nlohmann::json defs_tilesets = defs["tilesets"];
 
-            tilesets.push_back(Tileset(defs_tilesets.at(0)["identifier"], defs_tilesets.at(0)["relPath"], defs_tilesets.at(0)["pxWid"], defs_tilesets.at(0)["pxHei"]));
-            tilesets.front().GetWidthPixels();
+            // Load all tilesets
+            for(auto tileset : defs_tilesets) {
+                std::string file_name = tileset.find("relPath").value();
+                ResourceLoader::LoadTexture(std::string("./resource/" + file_name).c_str(), true, true, tileset["identifier"]);
+            }
         }
 
         if(input_json.contains("levels")) {
@@ -344,8 +348,10 @@ void GameApplication::Loop() {
 
         ResourceLoader::GetFont("alagard").Draw(sprite_renderer, std::to_string(frame_rate).c_str(), 32, 32);
         
-        ResourceLoader::GetFont("kenney_future_square").Draw(sprite_renderer, "TTF Font Test", 32, 256, 0xFF, 0x00, 0x00);
-        ResourceLoader::GetFont("romulus").Draw(sprite_renderer, "TTF Font Test", 32, 64, 0x00, 0x00, 0xFF);
+        ResourceLoader::GetFont("kenney_future_square").Draw(sprite_renderer, "TTF Font Test", 32, 256);
+        ResourceLoader::GetFont("romulus").Draw(sprite_renderer, "TTF Font Test", 32, 64, 0xFF, 0x00, 0x00);
+        ResourceLoader::GetFont("romulus").Draw(sprite_renderer, "TTF Font Test", 32, 96, 0x00, 0xFF, 0x00);
+        ResourceLoader::GetFont("romulus").Draw(sprite_renderer, "TTF Font Test", 32, 128, 0x00, 0x00, 0xFF);
 
         idle_loop++;
 

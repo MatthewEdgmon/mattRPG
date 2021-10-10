@@ -15,6 +15,7 @@
  * along with mattRPG.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// STL
 #include <cstdint>
 #include <iostream>
 
@@ -27,8 +28,11 @@
 #include "Texture2D.hpp"
 
 // TODO: Investigate GL_REPEAT for wrap_s
-Texture2D::Texture2D() : texture_loaded(false), width(0), height(0), format_internal(GL_RGB), format_image(GL_RGB), wrap_s(GL_CLAMP_TO_EDGE), wrap_t(GL_CLAMP_TO_EDGE), filter_min(GL_LINEAR), filter_max(GL_LINEAR) {
-	glGenTextures(1, &texture_id);
+Texture2D::Texture2D() : texture_id(0), width(0), height(0),
+						 format_internal(GL_RGBA8), format_image(GL_RGBA), wrap_s(GL_CLAMP_TO_EDGE),
+						 wrap_t(GL_CLAMP_TO_EDGE), filter_min(GL_LINEAR), filter_max(GL_LINEAR),
+						 texture_loaded(false) {
+
 }
 
 void Texture2D::Generate(std::uint32_t width, std::uint32_t height, std::uint8_t* data) {
@@ -37,17 +41,15 @@ void Texture2D::Generate(std::uint32_t width, std::uint32_t height, std::uint8_t
 	this->height = height;
 
 	// Create texture.
-	glBindTexture(GL_TEXTURE_2D, texture_id);
-	glTexImage2D(GL_TEXTURE_2D, 0, format_internal, width, height, 0, format_image, GL_UNSIGNED_BYTE, data);
+	glCreateTextures(GL_TEXTURE_2D, 1, &texture_id);
+	glTextureStorage2D(texture_id, 1, format_internal, width, height);
+	glTextureSubImage2D(texture_id, 0, 0, 0, width, height, format_image, GL_UNSIGNED_BYTE, data);
 
 	// Set texture parameters.
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter_min);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter_max);
-
-	// Unbind.
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glTextureParameteri(texture_id, GL_TEXTURE_WRAP_S, wrap_s);
+	glTextureParameteri(texture_id, GL_TEXTURE_WRAP_T, wrap_t);
+	glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, filter_min);
+	glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, filter_max);
 
 	// Texture is loaded.
 	texture_loaded = true;
@@ -61,7 +63,7 @@ void Texture2D::Delete() {
 
 void Texture2D::Bind() {
 	if(texture_loaded) {
-		glBindTexture(GL_TEXTURE_2D, texture_id);
+		glBindTextureUnit(0, texture_id);
 	} else {
 		std::cout << "Tried to bind to un-generated texture.\n";
 	}

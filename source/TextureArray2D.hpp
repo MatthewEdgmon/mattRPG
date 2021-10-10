@@ -15,10 +15,9 @@
  * along with mattRPG.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TEXTURE_2D_HPP__
-#define __TEXTURE_2D_HPP__
+#ifndef __TEXTURE_ARRAY_2D_HPP__
+#define __TEXTURE_ARRAY_2D_HPP__
 
-// STL
 #include <cstdint>
 
 // GLAD2
@@ -27,13 +26,13 @@
 // SDL2
 #include "SDL.h"
 
-class Texture2D {
+class TextureArray2D {
 
 	public:
-		Texture2D();
+		TextureArray2D();
 
 		// Generate from raw pixel data.
-		void Generate(std::uint32_t width, std::uint32_t height, std::uint8_t* data);
+		void Generate(std::uint32_t width, std::uint32_t height, std::uint32_t subimage_size, std::uint8_t* data);
 		void Delete();
 
 		void Bind();
@@ -42,8 +41,8 @@ class Texture2D {
 		void SetInternalFormat(std::uint32_t format) { format_internal = format; }
 		void SetImageFormat(std::uint32_t format) { format_image = format; }
 
-		std::uint32_t GetID()     { return texture_id; }
-		std::uint32_t GetWidth()  { return width; }
+		std::uint32_t GetID() { return texture_id; }
+		std::uint32_t GetWidth() { return width; }
 		std::uint32_t GetHeight() { return height; }
 
 	private:
@@ -65,4 +64,4 @@ class Texture2D {
 		bool texture_loaded;
 };
 
-#endif /* __TEXTURE_2D_HPP__ */
+#endif /* __TEXTURE_ARRAY_2D_HPP__ */
