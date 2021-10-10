@@ -94,6 +94,26 @@ void SpriteRenderer::InitRenderData() {
 		1.0f, 0.0f, 1.0f, 0.0f
 	};
 
+	float pos_vertices[] = {
+		0.0f, 1.0f,
+		1.0f, 0.0f,
+		0.0f, 0.0f,
+
+		0.0f, 1.0f,
+		1.0f, 1.0f,
+		1.0f, 0.0f,
+	};
+
+	float tex_vertices[] = {
+		0.0f, 1.0f,
+		1.0f, 0.0f,
+		0.0f, 0.0f,
+
+		0.0f, 1.0f,
+		1.0f, 1.0f,
+		1.0f, 0.0f
+	};
+
 	/*
 	glCreateBuffers(1, &QuadVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, QuadVBO);
@@ -110,10 +130,12 @@ void SpriteRenderer::InitRenderData() {
 	glNamedBufferData(QuadVBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	glCreateVertexArrays(1, &QuadVAO);
-	glBindVertexArray(QuadVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, QuadVBO);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+
+	glVertexArrayVertexBuffer(QuadVAO, 0, QuadVBO, 0, sizeof(float) * 4);
+
+	glEnableVertexArrayAttrib(QuadVAO, 0);
+
+	glVertexArrayAttribFormat(QuadVAO, 0, 4, GL_FLOAT, GL_FALSE, 0);
+
+	glVertexArrayAttribBinding(QuadVAO, 0, 0);
 }
