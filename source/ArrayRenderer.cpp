@@ -33,8 +33,8 @@ ArrayRenderer::ArrayRenderer(Shader& shader) : shader(shader) {
 }
 
 ArrayRenderer::~ArrayRenderer() {
-	glDeleteVertexArrays(1, &QuadVAO);
-	glDeleteBuffers(1, &QuadVBO);
+	glDeleteVertexArrays(1, &quad_vao);
+	glDeleteBuffers(1, &quad_vbo);
 }
 
 void ArrayRenderer::DrawArray(Texture2D& texture, std::uint32_t layer, glm::vec2 position, glm::vec2 size, float rotation, glm::vec3 color) {
@@ -43,11 +43,11 @@ void ArrayRenderer::DrawArray(Texture2D& texture, std::uint32_t layer, glm::vec2
 
 	// TODO: These values are hardcoded to subimage size.
 	if(size.x == 0) {
-		size.x = 16;
+		size.x = texture.GetSubImageSizeX();
 	}
 
 	if(size.y == 0) {
-		size.y = 16;
+		size.y = texture.GetSubImageSizeY();
 	}
 
 	if(texture.IsLoaded() == false) {
@@ -58,36 +58,51 @@ void ArrayRenderer::DrawArray(Texture2D& texture, std::uint32_t layer, glm::vec2
 		return;
 	}
 
-	shader.SetInteger("samplerLoc", GL_TEXTURE0 + 1);
+	// Prepare transformations.
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(position, 0.0f));
 
-	// For now, using texture unit 1 for array textures.
-	glActiveTexture(GL_TEXTURE0 + 1);
+	model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
+	model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
+
+	model = glm::scale(model, glm::vec3(size, 1.0f));
+
+	shader.SetIntegerUnsigned("diffuse_layer_max", texture.GetSubImageCount());
+	shader.SetIntegerUnsigned("diffuse_layer", layer);
+	shader.SetMatrix4f("model", model);
+	shader.SetVector3f("spriteColor", color);
+
 	texture.Bind();
 
+	// Draw the QuadVAO and then bind nothing.
+	glBindVertexArray(quad_vao);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 void ArrayRenderer::InitRenderData() {
 
 	float vertices[] = {
 		// POS      // TEX
-		0.0f, 1.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 2.0f, 0.0f, 1.0f,
+		2.0f, 0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 0.0f,
 
-		0.0f, 1.0f, 0.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 0.0f, 1.0f, 0.0f
+		0.0f, 2.0f, 0.0f, 1.0f,
+		2.0f, 2.0f, 1.0f, 1.0f,
+		2.0f, 0.0f, 1.0f, 0.0f
 	};
 
-	glGenVertexArrays(1, &QuadVAO);
-	glGenBuffers(1, &QuadVBO);
+	glCreateBuffers(1, &quad_vbo);
+	glNamedBufferData(quad_vbo, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, QuadVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glCreateVertexArrays(1, &quad_vao);
 
-	glBindVertexArray(QuadVAO);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	glVertexArrayVertexBuffer(quad_vao, 0, quad_vbo, 0, sizeof(float) * 4);
+
+	glEnableVertexArrayAttrib(quad_vao, 0);
+
+	glVertexArrayAttribFormat(quad_vao, 0, 4, GL_FLOAT, GL_FALSE, 0);
+
+	glVertexArrayAttribBinding(quad_vao, 0, 0);
 }

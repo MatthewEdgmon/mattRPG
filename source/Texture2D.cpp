@@ -29,6 +29,7 @@
 
 // TODO: Investigate GL_REPEAT for wrap_s
 Texture2D::Texture2D() : texture_id(0), width(0), height(0),
+						 subimage_size_x(0), subimage_size_y(0), subimage_count(0),
 						 format_internal(GL_RGBA8), format_image(GL_RGBA), wrap_s(GL_CLAMP_TO_EDGE),
 						 wrap_t(GL_CLAMP_TO_EDGE), filter_min(GL_LINEAR), filter_max(GL_LINEAR),
 						 is_array_texture(false), is_loaded(false) {
@@ -39,6 +40,7 @@ void Texture2D::Generate(std::uint32_t width, std::uint32_t height, std::uint8_t
 
 	if(is_loaded) {
 		std::cout << "Tried to re-generate a texture." << std::endl;
+		return;
 	}
 
 	this->width = width;
@@ -66,14 +68,18 @@ void Texture2D::GenerateArray(std::uint32_t width, std::uint32_t height, std::ui
 
 	if(is_loaded) {
 		std::cout << "Tried to re-generate a texture." << std::endl;
+		return;
 	}
-
-	this->width = width;
-	this->height = height;
 
 	size_t tiles_x = width / subimage_size_x;
 	size_t tiles_y = height / subimage_size_y;
 	size_t tile_count = tiles_x * tiles_y;
+
+	this->width = width;
+	this->height = height;
+	this->subimage_size_x = subimage_size_x;
+	this->subimage_size_y = subimage_size_y;
+	this->subimage_count = tile_count;
 
 	// Create array texture.
 	glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &texture_id);

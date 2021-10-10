@@ -43,11 +43,14 @@ class Texture2D {
 		void SetInternalFormat(std::uint32_t format) { format_internal = format; }
 		void SetImageFormat(std::uint32_t format) { format_image = format; }
 
-		std::uint32_t GetID()          { return texture_id; }
-		std::uint32_t GetWidth()       { return width; }
-		std::uint32_t GetHeight()      { return height; }
-		bool          IsLoaded()       { return is_loaded; }
-		bool          IsArrayTexture() { return is_array_texture; }
+		std::uint32_t GetID()            { return texture_id; }
+		std::uint32_t GetWidth()         { return width; }
+		std::uint32_t GetHeight()        { return height; }
+		std::uint32_t GetSubImageSizeX() { return subimage_size_x; }
+		std::uint32_t GetSubImageSizeY() { return subimage_size_y; }
+		std::uint32_t GetSubImageCount() { return subimage_count; }
+		bool          IsLoaded()         { return is_loaded; }
+		bool          IsArrayTexture()   { return is_array_texture; }
 
 	private:
 		// Actual reference to texture.
@@ -55,6 +58,9 @@ class Texture2D {
 
 		// Texture dimensions.
 		std::uint32_t width, height;
+
+		// If an array texture, dimensions of the subimages.
+		std::uint32_t subimage_size_x, subimage_size_y, subimage_count;
 
 		// Format of internal image and image loaded from.
 		std::uint32_t format_internal, format_image;

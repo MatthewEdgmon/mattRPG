@@ -18,6 +18,9 @@
 #ifndef __SPRITE_RENDERER_HPP__
 #define __SPRITE_RENDERER_HPP__
 
+// STL
+#include <cstdint>
+
 // GLM
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -35,8 +38,8 @@ class SpriteRenderer {
 
 	private:
 		Shader shader;
-		unsigned int QuadVAO;
-		unsigned int QuadVBO;
+		std::uint32_t quad_vao;
+		std::uint32_t quad_vbo;
 
 		void InitRenderData();
 };

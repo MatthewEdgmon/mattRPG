@@ -103,10 +103,10 @@ void Shader::Compile(const char* vertex_source, const char* fragment_source, con
 	}
 
 	// Cleanup unused.
-	glDeleteProgram(vertex_id);
-	glDeleteProgram(fragment_id);
+	glDeleteShader(vertex_id);
+	glDeleteShader(fragment_id);
 	if(geometry_source != nullptr) {
-		glDeleteProgram(geometry_id);
+		glDeleteShader(geometry_id);
 	}
 
 	is_ready = true;
@@ -125,6 +125,15 @@ void Shader::SetInteger(const char* name, int value, bool use_shader) {
 	}
 
 	glUniform1i(glGetUniformLocation(program_id, name), value);
+}
+
+void Shader::SetIntegerUnsigned(const char* name, unsigned int value, bool use_shader) {
+
+	if(use_shader) {
+		Use();
+	}
+
+	glUniform1ui(glGetUniformLocation(program_id, name), value);
 }
 
 void Shader::SetFloat(const char* name, float value, bool use_shader) {

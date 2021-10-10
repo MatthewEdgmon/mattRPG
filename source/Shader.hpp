@@ -18,6 +18,7 @@
 #ifndef __SHADER_HPP__
 #define __SHADER_HPP__
 
+// STL
 #include <cstdint>
 
 // GLAD2
@@ -39,6 +40,7 @@ class Shader {
 
 		// Raw data types.
 		void SetInteger (const char* name, int value, bool use_shader = false);
+		void SetIntegerUnsigned(const char* name, unsigned int value, bool use_shader = false);
 		void SetFloat   (const char* name, float value, bool use_shader = false);
 		void SetVector2f(const char* name, float x, float y, bool use_shader = false);
 		void SetVector3f(const char* name, float x, float y, float z, bool use_shader = false);

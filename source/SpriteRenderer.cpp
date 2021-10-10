@@ -34,8 +34,8 @@ SpriteRenderer::SpriteRenderer(Shader& shader) : shader(shader) {
 }
 
 SpriteRenderer::~SpriteRenderer() {
-	glDeleteVertexArrays(1, &QuadVAO);
-	glDeleteBuffers(1, &QuadVBO);
+	glDeleteVertexArrays(1, &quad_vao);
+	glDeleteBuffers(1, &quad_vbo);
 }
 
 void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec2 position, glm::vec2 size, float rotation, glm::vec3 color) {
@@ -72,13 +72,11 @@ void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec2 position, glm::vec
 	shader.SetMatrix4f("model", model);
 	shader.SetVector3f("spriteColor", color);
 
-	glActiveTexture(GL_TEXTURE0);
 	texture.Bind();
 
 	// Draw the QuadVAO and then bind nothing.
-	glBindVertexArray(QuadVAO);
+	glBindVertexArray(quad_vao);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glBindVertexArray(0);
 }
 
 void SpriteRenderer::InitRenderData() {
@@ -94,48 +92,16 @@ void SpriteRenderer::InitRenderData() {
 		1.0f, 0.0f, 1.0f, 0.0f
 	};
 
-	float pos_vertices[] = {
-		0.0f, 1.0f,
-		1.0f, 0.0f,
-		0.0f, 0.0f,
+	glCreateBuffers(1, &quad_vbo);
+	glNamedBufferData(quad_vbo, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-		0.0f, 1.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f,
-	};
+	glCreateVertexArrays(1, &quad_vao);
 
-	float tex_vertices[] = {
-		0.0f, 1.0f,
-		1.0f, 0.0f,
-		0.0f, 0.0f,
+	glVertexArrayVertexBuffer(quad_vao, 0, quad_vbo, 0, sizeof(float) * 4);
 
-		0.0f, 1.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f
-	};
+	glEnableVertexArrayAttrib(quad_vao, 0);
 
-	/*
-	glCreateBuffers(1, &QuadVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, QuadVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexArrayAttribFormat(quad_vao, 0, 4, GL_FLOAT, GL_FALSE, 0);
 
-	glCreateVertexArrays(1, &QuadVAO);
-	glEnableVertexArrayAttrib(QuadVAO, 0);
-	glVertexArrayAttribFormat(QuadVAO, 0, 4, GL_FLOAT, GL_FALSE, 0);
-	glVertexArrayAttribBinding(QuadVAO, 0, 0);
-	*/
-
-	glCreateBuffers(1, &QuadVBO);
-	glNamedBufferData(QuadVBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glCreateVertexArrays(1, &QuadVAO);
-
-	glVertexArrayVertexBuffer(QuadVAO, 0, QuadVBO, 0, sizeof(float) * 4);
-
-	glEnableVertexArrayAttrib(QuadVAO, 0);
-
-	glVertexArrayAttribFormat(QuadVAO, 0, 4, GL_FLOAT, GL_FALSE, 0);
-
-	glVertexArrayAttribBinding(QuadVAO, 0, 0);
+	glVertexArrayAttribBinding(quad_vao, 0, 0);
 }

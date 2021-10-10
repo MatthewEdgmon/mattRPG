@@ -38,8 +38,8 @@ class ArrayRenderer {
 
 	private:
 		Shader shader;
-		unsigned int QuadVAO;
-		unsigned int QuadVBO;
+		std::uint32_t quad_vao;
+		std::uint32_t quad_vbo;
 
 		void InitRenderData();
 };

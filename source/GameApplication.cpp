@@ -241,18 +241,22 @@ void GameApplication::Loop() {
     glm::mat4 projection_matrix = glm::ortho(0.0f, static_cast<float>(window_width), static_cast<float>(window_height), 0.0f, -1.0f, 1.0f);
 
     // Font
-    ResourceLoader::LoadFont("./resource/Kenney Future Square.ttf", 32, "kenney_future_square");
-    ResourceLoader::LoadFont("./resource/Alagard.ttf", 32, "alagard");
-    ResourceLoader::LoadFont("./resource/Romulus.ttf", 32, "romulus");
+    ResourceLoader::LoadFont("./resource/Fonts/Kenney Future Square.ttf", 32, "kenney_future_square");
+    ResourceLoader::LoadFont("./resource/Fonts/Alagard.ttf", 32, "alagard");
+    ResourceLoader::LoadFont("./resource/Fonts/Romulus.ttf", 32, "romulus");
 
     // Shaders
     ResourceLoader::LoadShader("./resource/Shaders/sprite.vert.glsl", "./resource/Shaders/sprite.frag.glsl", nullptr, "sprite");
-    ResourceLoader::GetShader("sprite").SetInteger("image", 0, true);
+    ResourceLoader::GetShader("sprite").Use();
+    ResourceLoader::GetShader("sprite").SetInteger("image", 0);
+    ResourceLoader::GetShader("sprite").SetVector2f("TexCoordShift", 0.0f, 0.0f);
     ResourceLoader::GetShader("sprite").SetMatrix4f("projection", projection_matrix);
 
-    ResourceLoader::LoadShader("./resource/Shaders/array.vert.glsl", "./resource/Shaders/array.frag.glsl", nullptr, "TextureArray2D");
-    ResourceLoader::GetShader("array").SetInteger("image", 0);
-    ResourceLoader::GetShader("array").SetInteger("texture_array", 0);
+    ResourceLoader::LoadShader("./resource/Shaders/array.vert.glsl", "./resource/Shaders/array.frag.glsl", nullptr, "array");
+    ResourceLoader::GetShader("array").Use();
+    ResourceLoader::GetShader("array").SetInteger("texarray", 0);
+    ResourceLoader::GetShader("array").SetIntegerUnsigned("diffuse_layer", 0);
+    ResourceLoader::GetShader("array").SetVector2f("TexCoordShift", 0.0f, 0.0f);
     ResourceLoader::GetShader("array").SetMatrix4f("projection", projection_matrix);
 
     // UI Elements
@@ -272,8 +276,6 @@ void GameApplication::Loop() {
     ResourceLoader::LoadTexture("./resource/CreaturePack/Rampart/Hunter/HunterIdle(Frame 2).png", true, true, player_idles[1]);
     ResourceLoader::LoadTexture("./resource/CreaturePack/Rampart/Hunter/HunterIdle(Frame 3).png", true, true, player_idles[2]);
     ResourceLoader::LoadTexture("./resource/CreaturePack/Rampart/Hunter/HunterIdle(Frame 4).png", true, true, player_idles[3]);
-
-    OverworldPlayer player(std::vector<std::string>(player_idles));
 
     GameMap game_map(16, 25, 25);
 
@@ -384,13 +386,15 @@ void GameApplication::Loop() {
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        //array_renderer->DrawArray(ResourceLoader::GetTexture("grass"), 18, glm::vec2(32, 32));
+        for(auto i = 0; i < ResourceLoader::GetTexture("grass").GetSubImageCount(); i++) {
+            array_renderer->DrawArray(ResourceLoader::GetTexture("grass"), i, glm::vec2(((i % 16) * 16), ((i / 16) * 16)));
+        }
 
         sprite_renderer->DrawSprite(ResourceLoader::GetTexture(player_idles[idle_loop]), glm::vec2((window_width / 2), (window_height / 2)), glm::vec2(64, 64));
 
         idle_loop++;
 
-        if (idle_loop == 4) {
+        if(idle_loop == 4) {
             idle_loop = 0;
         }
 
