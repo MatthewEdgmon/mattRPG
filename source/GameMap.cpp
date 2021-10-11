@@ -16,46 +16,12 @@
  */
 
 #include "GameMap.hpp"
-#include "GameMapTile.hpp"
 
-GameMap::GameMap(int tile_size, int max_x, int max_y) : tile_size(tile_size), max_x(max_x), max_y(max_y) {
-	Resize(max_x, max_y);
-}
+void GameMap::ChangeDimensions(size_t new_width_tiles, size_t new_height_tiles) {
+	width_tiles = new_width_tiles;
+	height_tiles = new_height_tiles;
 
-GameMap::~GameMap() {
-
-}
-
-void GameMap::Resize(int max_x, int max_y) {
-	if(this) {
-		this->max_x = max_x;
-		this->max_y = max_y;
-
-		tiles.resize(max_y);
-
-		for(size_t i = 0; i < tiles.size(); i++) {
-			tiles[i].resize(max_x);
-		}
+	for(auto layer : layers) {
+		layer.ChangeDimensions(new_width_tiles, new_height_tiles);
 	}
-}
-
-// TODO: Super inefficent
-void GameMap::Draw(SpriteRenderer* renderer) {
-	for(size_t x = 0; x < max_x; x++) {
-		for(size_t y = 0; y < max_y; y++) {
-			tiles.at(x).at(y).DrawTileCoordinate(renderer);
-		}
-	}
-}
-
-void GameMap::ChangeTile(int position_x, int position_y, GameMapTile new_tile) {
-	tiles.at(position_x).at(position_y) = new_tile;
-}
-
-GameMapTile GameMap::GetTileForMapCoordinate(int position_x, int position_y) {
-	return tiles.at(position_x).at(position_y);
-}
-
-GameMapTile GameMap::GetTileForWindowCoordinate(int position_x, int position_y) {
-	return tiles.at(position_x / tile_size).at(position_y / tile_size);
 }

@@ -28,6 +28,7 @@
 #include <glm/ext.hpp>
 
 #include "Font.hpp"
+#include "GameWorld.hpp"
 #include "MusicTrack.hpp"
 #include "Texture2D.hpp"
 #include "Shader.hpp"
@@ -38,6 +39,9 @@ class ResourceLoader {
 	public:
 		static Font LoadFont(const char* filename, int point_size, std::string font_name);
 		static Font GetFont(std::string name);
+
+		static GameWorld LoadGameWorld(const char* filename, std::string game_world_name);
+		static GameWorld GetGameWorld(std::string name);
 
 		static MusicTrack LoadMusicTrack(const char* filename, std::string music_track_name);
 		static MusicTrack GetMusicTrack(std::string name);
@@ -59,6 +63,7 @@ class ResourceLoader {
 		ResourceLoader() { }
 
 		static Font LoadFontFromFile(const char* filename, int point_size);
+		static GameWorld LoadGameWorldFromFile(const char* filename);
 		static MusicTrack LoadMusicTrackFromFile(const char* filename);
 		static Shader LoadShaderFromFile(const char* vertex_shader_filename, const char* fragment_shader_filename, const char* geometry_shader_filename);
 		static SoundEffect LoadSoundEffectFromFile(const char* filename);
@@ -67,6 +72,7 @@ class ResourceLoader {
 		static Texture2D LoadTextureFromFile(const char* filename, bool alpha, bool bilinear);
 
 		static std::map<std::string, Font>        fonts;
+		static std::map<std::string, GameWorld>   game_worlds;
 		static std::map<std::string, MusicTrack>  music_tracks;
 		static std::map<std::string, Shader>      shaders;
 		static std::map<std::string, SoundEffect> sound_effects;

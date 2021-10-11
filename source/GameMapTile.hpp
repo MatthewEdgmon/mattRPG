@@ -18,26 +18,18 @@
 #ifndef __GAME_MAP_TILE_HPP__
 #define __GAME_MAP_TILE_HPP__
 
+// STL
 #include <string>
-
-#include "SpriteRenderer.hpp"
 
 class GameMapTile {
 
 	public:
-		GameMapTile();
-		GameMapTile(std::string sprite_name, int position_x, int position_y);
-		GameMapTile(std::string sprite_name, int position_x, int position_y, int size);
+		GameMapTile(int tileset_index) : tileset_index(tileset_index) { }
 
-		void Draw(SpriteRenderer* renderer);
-		void DrawTileCoordinate(SpriteRenderer* renderer);
-
-		std::string GetSprite() { return tile_sprite; }
+		int GetTileSetIndex() { return tileset_index; }
 
 	private:
-		std::string tile_sprite;
-
-		int position_x, position_y, size;
+		int tileset_index;
 };
 
 #endif /* __GAME_MAP_TILE_HPP__ */

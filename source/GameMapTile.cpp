@@ -16,28 +16,3 @@
  */
 
 #include "GameMapTile.hpp"
-#include "ResourceLoader.hpp"
-#include "SpriteRenderer.hpp"
-
-GameMapTile::GameMapTile() {
-	tile_sprite = "grass";
-	position_x = 0;
-	position_y = 0;
-	size = 16;
-}
-
-GameMapTile::GameMapTile(std::string tile_sprite, int position_x, int position_y) : tile_sprite(tile_sprite), position_x(position_x), position_y(position_y), size(16) {
-
-}
-
-GameMapTile::GameMapTile(std::string tile_sprite, int position_x, int position_y, int size) : tile_sprite(tile_sprite), position_x(position_x), position_y(position_y), size(size) {
-
-}
-
-void GameMapTile::Draw(SpriteRenderer* renderer) {
-	renderer->DrawSprite(ResourceLoader::GetTexture(tile_sprite), glm::vec2(static_cast<float>(position_x), static_cast<float>(position_y)), glm::vec2(size, size));
-}
-
-void GameMapTile::DrawTileCoordinate(SpriteRenderer* renderer) {
-	renderer->DrawSprite(ResourceLoader::GetTexture(tile_sprite), glm::vec2(static_cast<float>(position_x * size), static_cast<float>(position_y * size)), glm::vec2(size, size));
-}

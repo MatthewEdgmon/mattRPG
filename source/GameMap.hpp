@@ -18,35 +18,29 @@
 #ifndef __GAME_MAP_HPP__
 #define __GAME_MAP_HPP__
 
-#include <map>
-#include <tuple>
+// STL
 #include <vector>
 
-#include "GameMapTile.hpp"
-#include "SpriteRenderer.hpp"
+#include "GameMapLayer.hpp"
 
 class GameMap {
 
 	public:
-		GameMap(int tile_size, int max_x, int max_y);
-		~GameMap();
+		GameMap() : tile_size(16), width_tiles(0), height_tiles(0) { }
+		GameMap(int tile_size, size_t width_tiles, size_t height_tiles) : tile_size(tile_size), width_tiles(width_tiles), height_tiles(height_tiles) { }
 
-		void Resize(int max_x, int max_y);
+		std::vector<GameMapLayer>& GetLayers() { return layers; }
 
-		void Draw(SpriteRenderer* renderer);
+		void ChangeDimensions(size_t new_width_tiles, size_t new_height_tiles);
 
-		void ChangeTile(int position_x, int position_y, GameMapTile new_tile);
-
-		GameMapTile GetTileForMapCoordinate(int position_x, int position_y);
-		GameMapTile GetTileForWindowCoordinate(int position_x, int position_y);
-
-		int GetMaxX() { return max_x; }
-		int GetMaxY() { return max_y; }
+		size_t GetLayerCount() { return layers.size(); }
 
 	private:
-		std::vector<std::vector<GameMapTile>> tiles;
+		std::vector<GameMapLayer> layers;
 
-		int tile_size, max_x, max_y;
+		size_t width_tiles, height_tiles;
+
+		int tile_size;
 };
 
 #endif /* __GAME_MAP_HPP__ */

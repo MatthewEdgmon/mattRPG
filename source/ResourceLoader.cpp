@@ -34,7 +34,14 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
+// json
+#include <nlohmann/json.hpp>
+
 #include "Font.hpp"
+#include "GameMap.hpp"
+#include "GameMapLayer.hpp"
+#include "GameMapTile.hpp"
+#include "GameWorld.hpp"
 #include "MusicTrack.hpp"
 #include "ResourceLoader.hpp"
 #include "Shader.hpp"
@@ -42,6 +49,7 @@
 #include "Texture2D.hpp"
 
 std::map<std::string, Font>        ResourceLoader::fonts;
+std::map<std::string, GameWorld>   ResourceLoader::game_worlds;
 std::map<std::string, MusicTrack>  ResourceLoader::music_tracks;
 std::map<std::string, Shader>      ResourceLoader::shaders;
 std::map<std::string, SoundEffect> ResourceLoader::sound_effects;
@@ -54,6 +62,15 @@ Font ResourceLoader::LoadFont(const char* filename, int point_size, std::string 
 
 Font ResourceLoader::GetFont(std::string font_name) {
 	return fonts[font_name];
+}
+
+GameWorld ResourceLoader::LoadGameWorld(const char* filename, std::string game_world_name) {
+	game_worlds[game_world_name] = LoadGameWorldFromFile(filename);
+	return game_worlds[game_world_name];
+}
+
+GameWorld ResourceLoader::GetGameWorld(std::string game_world_name) {
+	return game_worlds[game_world_name];
 }
 
 MusicTrack ResourceLoader::LoadMusicTrack(const char* filename, std::string music_track_name) {
@@ -144,6 +161,57 @@ MusicTrack ResourceLoader::LoadMusicTrackFromFile(const char* filename) {
 	MusicTrack music_track;
 
 	return music_track;
+}
+
+GameWorld ResourceLoader::LoadGameWorldFromFile(const char* filename) {
+
+	std::ifstream input_file(filename);
+
+	if(input_file.fail()) {
+		std::cout << "Failed to load a GameWorld from \"" << filename << "\" (file doesn't exist or can't open)." << std::endl;
+		return GameWorld(0);
+	}
+
+	nlohmann::json input_json;
+
+	input_file >> input_json;
+	input_file.close();
+
+	if(input_json.empty()) {
+		std::cout << "Failed to load a GameWorld from \"" << filename << "\" (file exists, JSON was empty)." << std::endl;
+		return GameWorld(0);
+	}
+
+	int tile_size = static_cast<int>(input_json.find<std::string>("defaultGridSize").value());
+
+	GameWorld game_world(tile_size);
+
+	if(input_json.contains("levels")) {
+
+		for(auto level : input_json.find<std::string>("levels").value()) {
+
+			int level_width = static_cast<int>(level.find<std::string>("pxWid").value()) / tile_size;
+			int level_height = static_cast<int>(level.find<std::string>("pxHei").value()) / tile_size;
+
+			// Add a GameMap for each level.
+			game_world.GetMaps().push_back(GameMap(tile_size, level_width, level_height));
+
+			for(auto layer : level.find<std::string>("layerInstances").value()) {
+
+				// Add a GameMapLayer for each layer.
+				game_world.GetMaps().front().GetLayers().push_back(GameMapLayer(tile_size, level_width, level_height));
+
+				for(auto tile : layer.find<std::string>("gridTiles").value()) {
+					
+					// Add a GameMapTile for each tile.
+					game_world.GetMaps().front().GetLayers().front().GetTiles()[0][0] = GameMapTile(18);
+
+					std::cout << "Loading tile for layer " << layer.find<std::string>("__identifier").value() << " for level " << level.find<std::string>("identifier").value() << "." << std::endl;
+				}
+			}
+		}
+	}
+	return game_world;
 }
 
 Shader ResourceLoader::LoadShaderFromFile(const char* vertex_shader_filename, const char* fragment_shader_filename, const char* geometry_shader_filename) {

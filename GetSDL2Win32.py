@@ -19,7 +19,7 @@ os.makedirs(thirdPartyFolder, exist_ok=True)
 os.chdir(thirdPartyFolder)
 
 # SDL2
-DownloadZIP('https://www.libsdl.org/release/SDL2-devel-2.0.14-VC.zip', 'SDL2-2.0.14')
+DownloadZIP('https://www.libsdl.org/release/SDL2-devel-2.0.16-VC.zip', 'SDL2-2.0.16')
 # SDL2_image
 DownloadZIP('https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.5-VC.zip', 'SDL2_image-2.0.5')
 # SDL2_mixer

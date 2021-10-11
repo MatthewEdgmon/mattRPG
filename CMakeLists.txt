@@ -22,7 +22,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/sdl2-cmake-modules)
 
 # Find SDL2 and OpenGL
-set(SDL2_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/SDL2-2.0.14" CACHE BOOL "" FORCE)
+set(SDL2_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/SDL2-2.0.16" CACHE BOOL "" FORCE)
 set(SDL2_IMAGE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/SDL2_image-2.0.5" CACHE BOOL "" FORCE)
 set(SDL2_MIXER_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/SDL2_mixer-2.0.4" CACHE BOOL "" FORCE)
 set(SDL2_NET_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/SDL2_net-2.0.1" CACHE BOOL "" FORCE)
@@ -83,11 +83,15 @@ set(SOURCE_FILES source/ArrayRenderer.cpp
                  source/GameApplication.hpp
                  source/GameMap.cpp
                  source/GameMap.hpp
+                 source/GameMapLayer.cpp
+                 source/GameMapLayer.hpp
                  source/GameMapTile.cpp
                  source/GameMapTile.hpp
                  source/GameState.hpp
                  source/GameStateManager.cpp
                  source/GameStateManager.hpp
+                 source/GameWorld.cpp
+                 source/GameWorld.hpp
                  source/InputManager.cpp
                  source/InputManager.hpp
                  source/Main.cpp

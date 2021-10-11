@@ -41,7 +41,9 @@
 #include "Font.hpp"
 #include "GameApplication.hpp"
 #include "GameMap.hpp"
+#include "GameMapLayer.hpp"
 #include "GameMapTile.hpp"
+#include "GameWorld.hpp"
 #include "InputManager.hpp"
 #include "OverworldPlayer.hpp"
 #include "ResourceLoader.hpp"
@@ -189,6 +191,9 @@ void GameApplication::Initialize() {
 
     std::cout << "Loaded OpenGL " << GLAD_VERSION_MAJOR(glad_version) << "." << GLAD_VERSION_MINOR(glad_version) << " using GLAD2.\n";
 
+    // Disable VSync
+    SDL_GL_SetSwapInterval(0);
+
     // Enable KHR_debug
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -217,11 +222,11 @@ void GameApplication::Initialize() {
 
     for(int i = 0; i < SDL_NumJoysticks(); i++) {
         if(SDL_IsGameController(i)) {
-            sdl_game_controller = SDL_GameControllerOpen(i);
+sdl_game_controller = SDL_GameControllerOpen(i);
         }
     }
 
-    if(sdl_game_controller == NULL) {
+    if (sdl_game_controller == NULL) {
         std::cout << "Failed to assign game controller in SDL. SDL_GetError(): " << SDL_GetError() << '\n';
     }
 
@@ -270,60 +275,32 @@ void GameApplication::Loop() {
         "player_idle4"
     };
 
-    int idle_loop = 0;
-
     ResourceLoader::LoadTexture("./resource/CreaturePack/Rampart/Hunter/HunterIdle(Frame 1).png", true, true, player_idles[0]);
     ResourceLoader::LoadTexture("./resource/CreaturePack/Rampart/Hunter/HunterIdle(Frame 2).png", true, true, player_idles[1]);
     ResourceLoader::LoadTexture("./resource/CreaturePack/Rampart/Hunter/HunterIdle(Frame 3).png", true, true, player_idles[2]);
     ResourceLoader::LoadTexture("./resource/CreaturePack/Rampart/Hunter/HunterIdle(Frame 4).png", true, true, player_idles[3]);
 
-    GameMap game_map(16, 25, 25);
-
-    //for(size_t x = 0; x < 25; x++) {
-    //    for(size_t y = 0; y < 25; y++) {
-    //        game_map.ChangeTile(x, y, GameMapTile("grass", x, y));
-    //    }
-    //}
-
-    // Tiles
-    ResourceLoader::LoadTextureArray("./resource/OverworldPack/GrassBiome/GB-LandTileset.png", true, true, "grass", 16, 16);
+    ResourceLoader::LoadGameWorld("./resource/test.ldtk", "world");
 
     // Renderers
     ArrayRenderer* array_renderer = new ArrayRenderer(ResourceLoader::GetShader("array"));
     SpriteRenderer* sprite_renderer = new SpriteRenderer(ResourceLoader::GetShader("sprite"));
 
-    std::ifstream input("./resource/test.ldtk");
+    std::ifstream input_file("./resource/test.ldtk");
+
     nlohmann::json input_json;
-    input >> input_json;
-    input.close();
 
-    if(input_json.empty()) {
-        std::cout << "Input file is empty." << std::endl;
-    } else {
-        
-        if(input_json.contains("defs")) {
+    input_file >> input_json;
+    input_file.close();
 
-            nlohmann::json defs = input_json.find<std::string>("defs").value();
-            nlohmann::json defs_tilesets = defs["tilesets"];
-
-            // Load all tilesets
-            for(auto tileset : defs_tilesets) {
-                std::string file_name = tileset.find("relPath").value();
-                ResourceLoader::LoadTexture(std::string("./resource/" + file_name).c_str(), true, true, tileset["identifier"]);
-            }
+    if(input_json.contains("defs")) {
+        for(auto tileset : input_json.find<std::string>("defs").value().find<std::string>("defs_tilesets").value().find<std::string>("tilesets").value()) {
+            std::string file_name = tileset.find("relPath").value();
+            ResourceLoader::LoadTextureArray(std::string("./resource/" + file_name).c_str(), true, true, tileset["identifier"], 16, 16);
         }
-
-        if(input_json.contains("levels")) {
-
-            nlohmann::json level0 = input_json.find<std::string>("levels").value().at(0);
-
-            //std::cout << level0.find<std::string>("identifier").value() << std::endl;
-            game_map.Resize((level0["pxWid"] / 16), (level0["pxHei"] / 16));
-
-
-        }
-
     }
+
+    int idle_loop = 0;
 
     while(is_running) {
 
@@ -386,11 +363,11 @@ void GameApplication::Loop() {
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        for(auto i = 0; i < ResourceLoader::GetTexture("grass").GetSubImageCount(); i++) {
-            array_renderer->DrawArray(ResourceLoader::GetTexture("grass"), i, glm::vec2(((i % 16) * 16), ((i / 16) * 16)));
+        for(auto i = 0; i < ResourceLoader::GetTexture("GrassBiome").GetSubImageCount(); i++) {
+            array_renderer->DrawArray(ResourceLoader::GetTexture("GrassBiome"), i, glm::vec2(((i % 16) * 16), ((i / 16) * 16)));
         }
 
-        sprite_renderer->DrawSprite(ResourceLoader::GetTexture(player_idles[idle_loop]), glm::vec2((window_width / 2), (window_height / 2)), glm::vec2(64, 64));
+        sprite_renderer->DrawSprite(ResourceLoader::GetTexture(player_idles[idle_loop]), glm::vec2((window_width / 2), (window_height / 2)), glm::vec2(16, 16));
 
         idle_loop++;
 
