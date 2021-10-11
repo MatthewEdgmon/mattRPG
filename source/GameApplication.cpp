@@ -294,7 +294,8 @@ void GameApplication::Loop() {
     input_file.close();
 
     if(input_json.contains("defs")) {
-        for(auto tileset : input_json.find<std::string>("defs").value().find<std::string>("defs_tilesets").value().find<std::string>("tilesets").value()) {
+
+        for(auto tileset : input_json.find<std::string>("defs").value().find<std::string>("tilesets").value()) {
             std::string file_name = tileset.find("relPath").value();
             ResourceLoader::LoadTextureArray(std::string("./resource/" + file_name).c_str(), true, true, tileset["identifier"], 16, 16);
         }

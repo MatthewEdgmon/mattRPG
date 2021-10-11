@@ -204,13 +204,14 @@ GameWorld ResourceLoader::LoadGameWorldFromFile(const char* filename) {
 				for(auto tile : layer.find<std::string>("gridTiles").value()) {
 					
 					// Add a GameMapTile for each tile.
-					game_world.GetMaps().front().GetLayers().front().GetTiles()[0][0] = GameMapTile(18);
+					game_world.GetMaps().front().GetLayers().front().GetTiles().at(0).push_back(GameMapTile(18));
 
-					std::cout << "Loading tile for layer " << layer.find<std::string>("__identifier").value() << " for level " << level.find<std::string>("identifier").value() << "." << std::endl;
+					//std::cout << "Loading tile for layer " << layer.find<std::string>("__identifier").value() << " for map " << level.find<std::string>("identifier").value() << "." << std::endl;
 				}
 			}
 		}
 	}
+
 	return game_world;
 }
 
