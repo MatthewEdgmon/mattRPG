@@ -364,9 +364,30 @@ void GameApplication::Loop() {
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        for(auto i = 0; i < ResourceLoader::GetTexture("GrassBiome").GetSubImageCount(); i++) {
-            array_renderer->DrawArray(ResourceLoader::GetTexture("GrassBiome"), i, glm::vec2(((i % 16) * 16), ((i / 16) * 16)));
-        }
+        // Tileset test
+        //for(auto i = 0; i < ResourceLoader::GetTexture("GrassBiome").GetSubImageCount(); i++) {
+        //    array_renderer->DrawArray(ResourceLoader::GetTexture("GrassBiome"), i, glm::vec2(((i % 16) * 16), ((i / 16) * 16)));
+        //}
+
+        // Gameworld test
+        //for(auto map : ResourceLoader::GetGameWorld("world").GetMaps()) {
+        auto tile_size = ResourceLoader::GetGameWorld("world").GetTileSize();
+        auto map = ResourceLoader::GetGameWorld("world").GetMaps().at(0);
+            // Maybe in C++23 we'll get a reverse range based for loop.
+            for(size_t i = (map.GetLayers().size() - 1); i > 0; i--) {
+                auto layer = map.GetLayers().at(i);
+                // Only render if it's Tiles. Entities handled elsewhere.
+                if(layer.GetLayerType() == GameMapLayerType::Tiles) {
+                    for(size_t y = 0; y < layer.GetTiles().size(); y++) {
+                        for(size_t x = 0; x < layer.GetTiles()[y].size(); x++) {
+                            if(layer.GetTiles()[y][x].GetTileSetIndex() != 0) {
+                                array_renderer->DrawArray(ResourceLoader::GetTexture(layer.GetTileSetName()), layer.GetTiles()[y][x].GetTileSetIndex(), glm::vec2(x * tile_size, y * tile_size));
+                            }
+                        }
+                    }
+                }
+            }
+        //}
 
         sprite_renderer->DrawSprite(ResourceLoader::GetTexture(player_idles[idle_loop]), glm::vec2((window_width / 2), (window_height / 2)), glm::vec2(16, 16));
 

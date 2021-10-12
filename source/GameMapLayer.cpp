@@ -15,29 +15,45 @@
  * along with mattRPG.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// STL
+#include <string>
+#include <vector>
+
 #include "GameMapLayer.hpp"
 
-GameMapLayer::GameMapLayer() : tile_size(16), width_tiles(0), height_tiles(0) {
+GameMapLayer::GameMapLayer() : layer_type(GameMapLayerType::IntGrid), tileset_name(""), tile_size(16), width_tiles(0), height_tiles(0) {
 
 }
 
-GameMapLayer::GameMapLayer(int tile_size, size_t width_tiles, size_t height_tiles) : tile_size(tile_size), width_tiles(width_tiles), height_tiles(height_tiles) {
+GameMapLayer::GameMapLayer(GameMapLayerType layer_type, std::string tileset_name, int tile_size, size_t width_tiles, size_t height_tiles) : layer_type(layer_type), tileset_name(tileset_name), tile_size(tile_size), width_tiles(width_tiles), height_tiles(height_tiles) {
 
 	// NOTE: We completely fill the 2D vector of tiles with zero tiles in the case of some layers having incomplete/empty tile locations.
-	tiles.resize(width_tiles);
+	tiles.resize(height_tiles);
 
-	for(auto column : tiles) {
-		column.resize(height_tiles, GameMapTile(18));
+	for(auto& column : tiles) {
+		column.resize(width_tiles, GameMapTile(0));
 	}
 }
 
-void GameMapLayer::ChangeDimensions(size_t new_width_tiles, size_t new_height_tiles) {
-	width_tiles = new_width_tiles;
-	height_tiles = new_height_tiles;
+GameMapLayer::GameMapLayer(std::string layer_type, std::string tileset_name, int tile_size, size_t width_tiles, size_t height_tiles) : tileset_name(tileset_name), tile_size(tile_size), width_tiles(width_tiles), height_tiles(height_tiles) {
 
-	tiles.resize(width_tiles);
+	// Infer GameMapLayerType from layer_type.
+	if(layer_type == "IntGrid") {
+		this->layer_type = GameMapLayerType::IntGrid;
+	} else if(layer_type == "Entities") {
+		this->layer_type = GameMapLayerType::Entities;
+	} else if(layer_type == "Tiles") {
+		this->layer_type = GameMapLayerType::Tiles;
+	} else if(layer_type == "AutoLayer") {
+		this->layer_type = GameMapLayerType::AutoLayer;
+	} else {
+		this->layer_type = GameMapLayerType::IntGrid;
+	}
 
-	for(auto column : tiles) {
-		column.resize(height_tiles, GameMapTile(0));
+	// NOTE: We completely fill the 2D vector of tiles with zero tiles in the case of some layers having incomplete/empty tile locations.
+	tiles.resize(height_tiles);
+
+	for(auto& column : tiles) {
+		column.resize(width_tiles, GameMapTile(0));
 	}
 }

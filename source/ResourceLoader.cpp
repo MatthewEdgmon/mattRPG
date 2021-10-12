@@ -64,12 +64,12 @@ Font ResourceLoader::GetFont(std::string font_name) {
 	return fonts[font_name];
 }
 
-GameWorld ResourceLoader::LoadGameWorld(const char* filename, std::string game_world_name) {
+GameWorld& ResourceLoader::LoadGameWorld(const char* filename, std::string game_world_name) {
 	game_worlds[game_world_name] = LoadGameWorldFromFile(filename);
 	return game_worlds[game_world_name];
 }
 
-GameWorld ResourceLoader::GetGameWorld(std::string game_world_name) {
+GameWorld& ResourceLoader::GetGameWorld(std::string game_world_name) {
 	return game_worlds[game_world_name];
 }
 
@@ -190,6 +190,8 @@ GameWorld ResourceLoader::LoadGameWorldFromFile(const char* filename) {
 
 		for(auto level : input_json.find<std::string>("levels").value()) {
 
+			std::string level_identifier = level.find<std::string>("identifier").value();
+
 			int level_width = static_cast<int>(level.find<std::string>("pxWid").value()) / tile_size;
 			int level_height = static_cast<int>(level.find<std::string>("pxHei").value()) / tile_size;
 
@@ -199,14 +201,23 @@ GameWorld ResourceLoader::LoadGameWorldFromFile(const char* filename) {
 			for(auto layer : level.find<std::string>("layerInstances").value()) {
 
 				// Add a GameMapLayer for each layer.
-				game_world.GetMaps().front().GetLayers().push_back(GameMapLayer(tile_size, level_width, level_height));
+				std::string identifier = layer.find<std::string>("__identifier").value();
+				std::string type       = layer.find<std::string>("__type").value();
 
-				for(auto tile : layer.find<std::string>("gridTiles").value()) {
+				game_world.GetMaps().back().GetLayers().push_back(GameMapLayer(type, identifier, tile_size, level_width, level_height));
+
+				// Only load the tiles if GameMapLayerType is Tiles
+				if(type == "Tiles") {
+
+					for(auto tile : layer.find<std::string>("gridTiles").value()) {
 					
-					// Add a GameMapTile for each tile.
-					game_world.GetMaps().front().GetLayers().front().GetTiles().at(0).push_back(GameMapTile(18));
+						int tile_x = tile["px"].get<std::vector<int>>()[0] / tile_size;
+						int tile_y = tile["px"].get<std::vector<int>>()[1] / tile_size;
 
-					//std::cout << "Loading tile for layer " << layer.find<std::string>("__identifier").value() << " for map " << level.find<std::string>("identifier").value() << "." << std::endl;
+						// Add a GameMapTile for each tile.
+						//std::cout << "Tile (" << tile_x << "," << tile_y << ") for layer " << layer.find<std::string>("__identifier").value() << " for map " << level_identifier << "." << std::endl;
+						game_world.GetMaps().back().GetLayers().back().GetTiles().at(tile_y).at(tile_x) = GameMapTile(static_cast<int>(tile.find<std::string>("t").value()));
+					}
 				}
 			}
 		}

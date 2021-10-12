@@ -31,8 +31,6 @@ class GameMap {
 
 		std::vector<GameMapLayer>& GetLayers() { return layers; }
 
-		void ChangeDimensions(size_t new_width_tiles, size_t new_height_tiles);
-
 		size_t GetLayerCount() { return layers.size(); }
 
 	private:

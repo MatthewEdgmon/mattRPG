@@ -40,8 +40,8 @@ class ResourceLoader {
 		static Font LoadFont(const char* filename, int point_size, std::string font_name);
 		static Font GetFont(std::string name);
 
-		static GameWorld LoadGameWorld(const char* filename, std::string game_world_name);
-		static GameWorld GetGameWorld(std::string name);
+		static GameWorld& LoadGameWorld(const char* filename, std::string game_world_name);
+		static GameWorld& GetGameWorld(std::string name);
 
 		static MusicTrack LoadMusicTrack(const char* filename, std::string music_track_name);
 		static MusicTrack GetMusicTrack(std::string name);

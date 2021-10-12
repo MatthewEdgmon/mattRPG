@@ -19,27 +19,42 @@
 #define __GAME_MAP_LAYER_HPP__
 
 // STL
+#include <string>
 #include <vector>
 
 #include "GameMapTile.hpp"
+
+enum class GameMapLayerType {
+	IntGrid,
+	Entities,
+	Tiles,
+	AutoLayer
+};
 
 class GameMapLayer {
 
 	public:
 		GameMapLayer();
-		GameMapLayer(int tile_size, size_t width_tiles, size_t height_tiles);
-
-		void ChangeDimensions(size_t new_width_tiles, size_t new_height_tiles);
+		GameMapLayer(GameMapLayerType layer_type, std::string tileset_name, int tile_size, size_t width_tiles, size_t height_tiles);
+		GameMapLayer(std::string layer_type, std::string tileset_name, int tile_size, size_t width_tiles, size_t height_tiles);
 
 		std::vector<std::vector<GameMapTile>>& GetTiles() { return tiles; }
+
+		GameMapLayerType& GetLayerType() { return layer_type; }
 
 		int GetWidthTiles() { return width_tiles; }
 		int GetHeightTiles() { return height_tiles; }
 
+		std::string& GetTileSetName() { return tileset_name; }
+
 		size_t GetTileCount() { return width_tiles * height_tiles; }
 
 	private:
+		GameMapLayerType layer_type;
+
 		std::vector<std::vector<GameMapTile>> tiles;
+
+		std::string tileset_name;
 
 		size_t width_tiles, height_tiles;
 

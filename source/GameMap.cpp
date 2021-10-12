@@ -16,12 +16,3 @@
  */
 
 #include "GameMap.hpp"
-
-void GameMap::ChangeDimensions(size_t new_width_tiles, size_t new_height_tiles) {
-	width_tiles = new_width_tiles;
-	height_tiles = new_height_tiles;
-
-	for(auto layer : layers) {
-		layer.ChangeDimensions(new_width_tiles, new_height_tiles);
-	}
-}
